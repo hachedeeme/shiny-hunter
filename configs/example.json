@@ -1,0 +1,14 @@
+{
+  "_help": "Ejemplo. Reemplazá los píxeles con la salida de 'shiny-hunter calibrate' (F9). Los colores de shiny_pixels son los de un pokemon normal. check ignora las claves que no conoce.",
+
+  "ready_pixels": [
+    {"x": 0, "y": 0, "color": [0, 0, 0]}
+  ],
+
+  "shiny_pixels": [
+    {"x": 0, "y": 0, "color": [0, 0, 0]}
+  ],
+
+  "tolerance": 12,
+  "stop_key": "f12"
+}
