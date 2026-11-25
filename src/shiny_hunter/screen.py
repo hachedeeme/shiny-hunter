@@ -8,7 +8,6 @@ from shiny_hunter.config import RGB, Pixel
 
 
 class Screen:
-
   def __init__(self, points: list[Pixel]) -> None:
     self._sct = mss.MSS()
     self.left = min(point.x for point in points)

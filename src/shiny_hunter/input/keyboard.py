@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import time
 from collections.abc import Callable
 from typing import Any
 
@@ -25,6 +26,9 @@ _SPECIAL_KEYS = {
 
 
 class Keyboard:
+  def __init__(self) -> None:
+    self._controller = keyboard.Controller()
+
   def parse_key(self, name: str) -> Any:
     """Convierte 'ctrl', 'f12', 'z'... en algo que pynput entienda."""
     n = name.strip().lower()
@@ -54,3 +58,20 @@ class Keyboard:
     listener.daemon = True
     listener.start()
     return listener
+
+  def press(self, combo: str, hold: float) -> None:
+    """Presiona una tecla o combinación de teclas (separadas por '+') durante un tiempo.
+    Args:
+        combo: Tecla o combinación a presionar (ej. "a", "ctrl+c").
+        hold: Duración de la pulsación en segundos.
+    """
+    keys = [self.parse_key(part) for part in combo.split("+")]
+    pressed: list[Any] = []
+    try:
+      for key in keys:
+        self._controller.press(key)
+        pressed.append(key)
+      time.sleep(hold)
+    finally:
+      for key in reversed(pressed):
+        self._controller.release(key)

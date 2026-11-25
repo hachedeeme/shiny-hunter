@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from shiny_hunter.config import Config, ConfigError, Pixel, evaluate, load_config
+from shiny_hunter.config import Config, ConfigError, Pixel, Step, evaluate, load_config
 
 
 def test_pixel_matches_dentro_de_la_tolerancia() -> None:
@@ -53,6 +53,8 @@ def test_load_config_con_solo_shiny_pixels(tmp_path) -> None:
   assert cfg.ready_pixels == []
   assert cfg.tolerance == 12
   assert cfg.stop_key == "f12"
+  assert cfg.sequence == [Step("x", wait=1.0)]
+  assert cfg.key_hold == 0.05
 
 
 def test_load_config_sin_shiny_pixels_falla(tmp_path) -> None:

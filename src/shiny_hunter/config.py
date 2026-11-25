@@ -16,6 +16,13 @@ class ConfigError(Exception):
 
 
 @dataclass(frozen=True)
+class Step:
+  keys: str
+  wait: float = 1.0
+  hold: float | None = None
+
+
+@dataclass(frozen=True)
 class Pixel:
   x: int
   y: int
@@ -31,6 +38,13 @@ class Config:
   ready_pixels: list[Pixel] = field(default_factory=list)
   tolerance: int = 12
   stop_key: str = "f12"
+  sequence: list[Step] = field(default_factory=list)
+  key_hold: float = 0.05
+  ready_timeout: float = 10
+  poll_interval: float = 0.1
+  settle_time: float = 0.5
+  confirm_captures: int = 3
+  confirm_interval: float = 0.25
 
 
 def evaluate(cfg: Config, ready_now: list[RGB], shiny_now: list[RGB]) -> Verdict:
@@ -68,20 +82,61 @@ def load_config(path: str) -> Config:
   try:
     tolerance = int(raw.get("tolerance", 12))
     stop_key = str(raw.get("stop_key", "f12"))
+    key_hold = float(raw.get("key_hold", 0.05))
+    ready_timeout = float(raw.get("ready_timeout", 20))
+    poll_interval = float(raw.get("poll_interval", 0.1))
+    settle_time = float(raw.get("settle_time", 0.5))
+    confirm_captures = int(raw.get("confirm_captures", 3))
+    confirm_interval = float(raw.get("confirm_interval", 0.25))
   except (TypeError, ValueError) as exc:
     raise ConfigError(f"Valor numérico inválido en la config: {exc}") from None
 
+  keys = Keyboard()
   try:
-    Keyboard().parse_key(stop_key)
+    keys.parse_key(stop_key)
   except ValueError as exc:
     raise ConfigError(str(exc)) from None
+  sequence = _parse_sequence(raw.get("sequence"), keys)
 
   return Config(
     shiny_pixels=shiny,
     ready_pixels=ready,
     tolerance=tolerance,
     stop_key=stop_key,
+    sequence=sequence,
+    key_hold=key_hold,
+    ready_timeout=ready_timeout,
+    poll_interval=poll_interval,
+    settle_time=settle_time,
+    confirm_captures=confirm_captures,
+    confirm_interval=confirm_interval,
   )
+
+
+def _parse_sequence(items: object, keys: Keyboard) -> list[Step]:
+  if items is None:
+    return []
+  if not isinstance(items, list):
+    raise ConfigError("'sequence' debe ser una lista.")
+  steps: list[Step] = []
+  for index, item in enumerate(items, start=1):
+    try:
+      if not isinstance(item, dict):
+        raise TypeError
+      combo = str(item["keys"])
+      wait = float(item.get("wait", 1.0))
+      hold = float(item["hold"]) if "hold" in item else None
+    except KeyError, TypeError, ValueError:
+      raise ConfigError(
+        f"'sequence' #{index} inválido: se necesita 'keys' y 'wait' opcional."
+      ) from None
+    for part in combo.split("+"):
+      try:
+        keys.parse_key(part)
+      except ValueError as exc:
+        raise ConfigError(str(exc)) from None
+    steps.append(Step(combo, wait, hold))
+  return steps
 
 
 def _parse_pixels(items: object, name: str) -> list[Pixel]:
