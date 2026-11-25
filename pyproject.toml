@@ -1,0 +1,39 @@
+[project]
+name = "shiny-hunter"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "hachedeeme", email = "hdmaidana@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = []
+
+[project.scripts]
+shiny-hunter = "shiny_hunter:main"
+
+[build-system]
+requires = ["uv_build>=0.13.10,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.6",
+]
+
+root = true
+
+[*.py]
+indent_style = space
+indent_size = 2
+
+[tool.ruff]
+indent-width = 2
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]   # errores, pyflakes, imports ordenados, modernizar, bugbear
+
+[tool.ruff.format]
+indent-style = "space"
