@@ -7,7 +7,10 @@ authors = [
     { name = "hachedeeme", email = "hdmaidana@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "mss>=10.2.0",
+    "pynput>=1.8.2",
+]
 
 [project.scripts]
 shiny-hunter = "shiny_hunter:main"
@@ -21,12 +24,6 @@ dev = [
     "pytest>=9.2.0",
     "ruff>=0.17.6",
 ]
-
-root = true
-
-[*.py]
-indent_style = space
-indent_size = 2
 
 [tool.ruff]
 indent-width = 2
